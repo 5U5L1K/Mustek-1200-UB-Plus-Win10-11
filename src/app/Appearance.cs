@@ -96,6 +96,7 @@ namespace MustekStudio
             {"Не удалось проверить или установить обновление.", "Could not check for or install an update."},
             {"Выберите папку для сохранения PDF и PNG.", "Choose a folder for saving PDF and PNG files."},
             {"Настройки применяются без перезапуска приложения.", "Settings take effect without restarting the application."},
+            {"Версия {0}", "Version {0}"},
             {"Отмена", "Cancel"}, {"Сохранить", "Save"}, {"Настройки сохранены.", "Settings saved."},
             {"Дождитесь завершения операции перед изменением настроек.", "Wait for the current operation before changing settings."},
             {"Ход выполнения", "Progress"}, {"Выполняется", "In progress"}
@@ -407,7 +408,8 @@ namespace MustekStudio
                 outputLabel.Text = UiText.Get("ПАПКА СОХРАНЕНИЯ", lang); outputPath.AccessibleName = outputLabel.Text;
                 browse.Text = UiText.Get("Выбрать…", lang);
                 theme.Items[0] = UiText.Get("Светлая", lang); theme.Items[1] = UiText.Get("Тёмная", lang); theme.SelectedIndex = index;
-                hint.Text = UiText.Get("Настройки применяются без перезапуска приложения.", lang);
+                hint.Text = String.Format(UiText.Get("Версия {0}", lang), typeof(SettingsDialog).Assembly.GetName().Version.ToString(3)) +
+                    Environment.NewLine + UiText.Get("Настройки применяются без перезапуска приложения.", lang);
                 save.Text = UiText.Get("Сохранить", lang); cancel.Text = UiText.Get("Отмена", lang);
                 updates.Text = UiText.Get("Проверить обновления", lang);
                 colors = ThemeColors.For(SelectedTheme);
