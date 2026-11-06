@@ -238,21 +238,13 @@ namespace MustekStudio
         }
         void Configure()
         {
-#if PORTABLE
-            // The portable backend's data directory is patched to ".".
-            // Relative ASCII paths let the native module work even when the
-            // EXE and its data directory have Unicode names.
+            // The packaged backend resolves firmware relative to its working directory.
             string firmware = Path.Combine(root, "sane", "gt68xx", "SBfw.usb");
-            string firmwareSetting = "SBfw.usb";
-#else
-            string firmware = Path.Combine(root, "firmware", "SBfw.usb");
-            string firmwareSetting = "\\\\?\\" + firmware;
-#endif
-            if (!File.Exists(firmware)) throw new IOException(UiText.Get("Не найдена прошивка SBfw.usb. Сохраните приложение в папке проекта."));
+            if (!File.Exists(firmware)) throw new IOException(UiText.Get("Не найдена прошивка SBfw.usb. Перезапустите Mustek Studio для восстановления компонентов сканера."));
             string config = Path.Combine(root, "config"); Directory.CreateDirectory(config);
             File.WriteAllLines(Path.Combine(config, "gt68xx.conf"), new string[] {
                 "# Mustek Studio", "usb 0x05d8 0x4002", "override \"mustek-scanexpress-1200-ub-plus\"",
-                "firmware \"" + firmwareSetting + "\"" }, new UTF8Encoding(false));
+                "firmware \"SBfw.usb\"" }, new UTF8Encoding(false));
         }
         string Run(string[] args, Action<int> progress)
         {
@@ -263,11 +255,7 @@ namespace MustekStudio
             info.WorkingDirectory = root; info.UseShellExecute = false; info.CreateNoWindow = true;
             info.RedirectStandardOutput = true; info.RedirectStandardError = true;
             info.EnvironmentVariables["PATH"] = Path.GetDirectoryName(exe) + ";" + Environment.GetEnvironmentVariable("PATH");
-#if PORTABLE
             info.EnvironmentVariables["SANE_CONFIG_DIR"] = "config";
-#else
-            info.EnvironmentVariables["SANE_CONFIG_DIR"] = Path.Combine(root, "config");
-#endif
             foreach (string key in info.EnvironmentVariables.Keys.Cast<string>().Where(k => k.StartsWith("SANE_DEBUG_", StringComparison.OrdinalIgnoreCase)).ToArray())
                 info.EnvironmentVariables.Remove(key);
             StringBuilder output = new StringBuilder(), error = new StringBuilder();
@@ -315,11 +303,9 @@ namespace MustekStudio
             if (File.Exists(output)) throw new IOException(UiText.Get("Файл сканирования уже существует."));
             string device = FindDevice();
             string nativeOutput = output;
-#if PORTABLE
             Uri relative = new Uri(Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar)
                 .MakeRelativeUri(new Uri(Path.GetFullPath(output)));
             if (!relative.IsAbsoluteUri) nativeOutput = Uri.UnescapeDataString(relative.ToString()).Replace('/', Path.DirectorySeparatorChar);
-#endif
             List<string> args = new List<string> { "--device-name=" + device, "--mode=" + mode,
                 "--resolution=" + dpi, "--depth=8", "--format=png", "--output-file=" + nativeOutput, "--progress" };
             if (preview) args.Add("--preview=yes");

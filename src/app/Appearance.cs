@@ -78,7 +78,7 @@ namespace MustekStudio
             {"Не найдена сохранённая страница: ", "Saved page not found: "},
             {"Некорректное имя страницы в сохранённом документе.", "Invalid page filename in the saved document."},
             {"Добавьте хотя бы одну страницу.", "Add at least one page."},
-            {"Не найдена прошивка SBfw.usb. Сохраните приложение в папке проекта.", "SBfw.usb firmware not found. Keep the application in the project folder."},
+            {"Не найдена прошивка SBfw.usb. Перезапустите Mustek Studio для восстановления компонентов сканера.", "SBfw.usb firmware not found. Restart Mustek Studio to restore the scanner components."},
             {"Не найден модуль сканирования: ", "Scanner module not found: "},
             {"Не удалось выполнить сканирование (код ", "Scanning failed (code "}, {"\nЖурнал: ", "\nLog: "},
             {"Сканер не найден. Проверьте USB, питание и установку WinUSB для устройства 05D8:4002.", "Scanner not found. Check USB, power, and WinUSB for device 05D8:4002."},
