@@ -1,4 +1,4 @@
-# Mustek 1200 UB Plus Win10
+# Mustek 1200 UB Plus Win10-11
 
 Mustek Studio — приложение для **Mustek ScanExpress 1200 UB Plus** под
 **Windows 10 x64**. USB ID сканера — **05D8:4002**. Для подключения
