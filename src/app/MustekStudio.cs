@@ -345,11 +345,13 @@ namespace MustekStudio
             pages.BorderStyle = BorderStyle.None; pages.BackColor = Color.White; pages.LargeImageList = thumbnails; pages.Margin = Padding.Empty;
             pages.SelectedIndexChanged += delegate { if (!refreshing && SelectedIndex >= 0) ShowSelectedPage(); UpdateButtons(); };
             right.Controls.Add(pages, 0, 3);
-            TableLayoutPanel footer = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, Margin = Padding.Empty };
+            TableLayoutPanel footer = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 1, Margin = Padding.Empty };
+            footer.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             footer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); footer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
             footer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220));
             status.Dock = DockStyle.Fill; status.TextAlign = ContentAlignment.MiddleLeft; status.AutoEllipsis = true; status.Text = UiText.Get("Готово · добавьте страницу или выполните предпросмотр");
-            progress.Dock = DockStyle.Fill; progress.Margin = new Padding(5, 12, 0, 4); progress.Visible = false;
+            progress.Anchor = AnchorStyles.Left | AnchorStyles.Right; progress.Height = 20;
+            progress.Margin = new Padding(5, 0, 6, 0); progress.Visible = false;
             progress.AccessibleName = UiText.Get("Ход выполнения");
             AttributionLabel attribution = new AttributionLabel {
                 Name = "attribution", Text = UiText.Get("@Навайбкодил 5U5L1K"),
@@ -429,6 +431,7 @@ namespace MustekStudio
                 if (manual) MessageBox.Show(this, UiText.Get("Проверка обновлений уже выполняется."), "Mustek Studio");
                 return;
             }
+            string previousStatus = status.Text;
             checkingUpdates = true;
             try
             {
@@ -458,7 +461,7 @@ namespace MustekStudio
             {
                 if (IsDisposed) return;
                 if (manual) ShowError(new IOException(UiText.Get("Не удалось проверить или установить обновление.") + Environment.NewLine + ex.Message, ex));
-                else SetStatus(UiText.Get("Не удалось проверить или установить обновление."));
+                else if (!busy && status.Text == previousStatus) SetStatus(UiText.Get("Не удалось проверить или установить обновление."));
             }
             finally { checkingUpdates = false; }
         }
