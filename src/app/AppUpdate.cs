@@ -33,7 +33,7 @@ namespace MustekStudio
         public static AppUpdate Check()
         {
             string[] lines;
-            using (HttpWebResponse response = Open(Repository + "main/update.txt"))
+            using (HttpWebResponse response = Open(Repository + "refs/heads/main/update.txt"))
             using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.ASCII))
             {
                 char[] buffer = new char[256];
