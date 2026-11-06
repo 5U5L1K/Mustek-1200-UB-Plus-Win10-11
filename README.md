@@ -1,7 +1,7 @@
 # Mustek 1200 UB Plus Win10-11
 
 Mustek Studio — приложение для **Mustek ScanExpress 1200 UB Plus** под
-**Windows 10 x64**. USB ID сканера — **05D8:4002**. Для подключения
+**Windows 10-11 x64**. USB ID сканера — **05D8:4002**. Для подключения
 используются WinUSB и SANE GT68xx.
 
 [Установщик MustekStudio-Setup.exe](MustekStudio-Setup.exe) ·
@@ -49,7 +49,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\Build-Setup.ps1 -I
 ## English
 
 Mustek Studio is a scanner application for the **Mustek ScanExpress 1200 UB Plus**
-on **Windows 10 x64**. It uses WinUSB and SANE GT68xx with USB ID **05D8:4002**.
+on **Windows 10-11 x64**. It uses WinUSB and SANE GT68xx with USB ID **05D8:4002**.
 
 [MustekStudio-Setup.exe](MustekStudio-Setup.exe) · [SHA256](Setup-SHA256.txt)
 
