@@ -88,6 +88,12 @@ namespace MustekStudio
             {"Настройки…", "Settings…"}, {"Настройки", "Settings"}, {"ЯЗЫК ИНТЕРФЕЙСА", "INTERFACE LANGUAGE"},
             {"ТЕМА ОФОРМЛЕНИЯ", "APPEARANCE"}, {"Светлая", "Light"}, {"Тёмная", "Dark"},
             {"ПАПКА СОХРАНЕНИЯ", "SAVE FOLDER"}, {"Выбрать…", "Browse…"},
+            {"Проверить обновления", "Check for updates"},
+            {"Проверка обновлений уже выполняется.", "An update check is already running."},
+            {"Установлена последняя версия.", "You have the latest version."},
+            {"Доступна версия {0}. Установить обновление и перезапустить Mustek Studio?", "Version {0} is available. Install the update and restart Mustek Studio?"},
+            {"Загрузка обновления", "Downloading update"},
+            {"Не удалось проверить или установить обновление.", "Could not check for or install an update."},
             {"Выберите папку для сохранения PDF и PNG.", "Choose a folder for saving PDF and PNG files."},
             {"Настройки применяются без перезапуска приложения.", "Settings take effect without restarting the application."},
             {"Отмена", "Cancel"}, {"Сохранить", "Save"}, {"Настройки сохранены.", "Settings saved."},
@@ -327,6 +333,7 @@ namespace MustekStudio
         readonly TextBox outputPath = new TextBox { ReadOnly = true, BorderStyle = BorderStyle.None };
         readonly Button browse = new ThemedButton();
         readonly Button save = new ThemedButton(), cancel = new ThemedButton();
+        readonly Button updates = new ThemedButton();
         ThemeColors colors;
         bool updating;
         public string SelectedLanguage { get { return language.SelectedIndex == 1 ? "en" : "ru"; } }
@@ -364,11 +371,12 @@ namespace MustekStudio
             output.Controls.Add(outputPath, 0, 0); output.Controls.Add(browse, 1, 0);
             hint.Padding = new Padding(0, 12, 0, 0); hint.Font = new Font("Segoe UI", 9);
             FlowLayoutPanel actions = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, WrapContents = false };
-            foreach (Button button in new Button[] { save, cancel })
+            foreach (Button button in new Button[] { save, cancel, updates })
             {
                 button.Size = new Size(120, 34); button.Margin = new Padding(8, 4, 0, 0); button.FlatStyle = FlatStyle.Flat;
                 button.FlatAppearance.BorderSize = button == save ? 0 : 1; actions.Controls.Add(button);
             }
+            updates.AutoSize = true; updates.MinimumSize = new Size(146, 34); updates.DialogResult = DialogResult.Retry;
             save.DialogResult = DialogResult.OK; cancel.DialogResult = DialogResult.Cancel;
             AcceptButton = save; CancelButton = cancel;
             layout.Controls.Add(heading, 0, 0); layout.Controls.Add(languageLabel, 0, 1); layout.Controls.Add(language, 0, 2);
@@ -401,6 +409,7 @@ namespace MustekStudio
                 theme.Items[0] = UiText.Get("Светлая", lang); theme.Items[1] = UiText.Get("Тёмная", lang); theme.SelectedIndex = index;
                 hint.Text = UiText.Get("Настройки применяются без перезапуска приложения.", lang);
                 save.Text = UiText.Get("Сохранить", lang); cancel.Text = UiText.Get("Отмена", lang);
+                updates.Text = UiText.Get("Проверить обновления", lang);
                 colors = ThemeColors.For(SelectedTheme);
                 colors.Apply(this, new HashSet<Button> { save }, new HashSet<Control> { languageLabel, themeLabel, outputLabel, hint });
             }

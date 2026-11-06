@@ -33,7 +33,7 @@ $compilerOptions = @('/nologo', '/target:winexe', '/platform:x64', '/optimize+',
     ('/resource:' + (Join-Path $build 'version.txt') + ',Portable.version.txt') `
     ('/resource:' + (Join-Path $build 'defaults.xml') + ',Portable.defaults.xml') `
     (Join-Path $app 'ScannerCore.cs') (Join-Path $app 'MustekStudio.cs') (Join-Path $app 'Appearance.cs') `
-    (Join-Path $app 'RuntimePackage.cs') (Join-Path $app 'AssemblyInfo.cs')
+    (Join-Path $app 'RuntimePackage.cs') (Join-Path $app 'AppUpdate.cs') (Join-Path $app 'AssemblyInfo.cs')
 if ($LASTEXITCODE -ne 0) { throw 'Application build failed.' }
 
 & $compiler @compilerOptions ('/out:' + (Join-Path $build 'ScannerConnection.exe')) (Join-Path $setup 'ScannerConnection.cs')
@@ -44,4 +44,6 @@ $root = Split-Path -Parent $PSScriptRoot
 $output = Join-Path $root 'MustekStudio-Setup.exe'
 $hash = (Get-FileHash -LiteralPath $output).Hash.ToLowerInvariant()
 ($hash + '  MustekStudio-Setup.exe') | Set-Content -LiteralPath (Join-Path $root 'Setup-SHA256.txt') -Encoding ASCII
+$version = (Get-Item -LiteralPath $output).VersionInfo.ProductVersion.Trim()
+@($version, $hash) | Set-Content -LiteralPath (Join-Path $root 'update.txt') -Encoding ASCII
 Write-Output ('Setup: ' + $output)

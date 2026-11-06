@@ -38,14 +38,21 @@ namespace MustekStudio
             if (args.Length == 2 && args[0] == "--data-dir") data = Path.GetFullPath(args[1]);
             UiText.Language = UiText.ReadSavedLanguage(data);
             bool first;
-            using (Mutex single = new Mutex(true, "Local\\MustekStudio-" + data.ToUpperInvariant().GetHashCode().ToString("X8"), out first))
+            string mutexName = "Local\\MustekStudio-" + data.ToUpperInvariant().GetHashCode().ToString("X8");
+            using (Mutex single = new Mutex(true, mutexName, out first))
             {
                 if (!first) { MessageBox.Show(UiText.Get("Приложение уже запущено. Переключитесь на окно Mustek Studio."), "Mustek Studio"); return; }
                 try
                 {
                     MainWindow window = new MainWindow(root, data, Path.Combine(userRoot, "scans"));
-                    window.Shown += delegate { window.ChooseInitialOutputDirectory(); };
-                    Application.Run(window);
+                    window.Shown += async delegate
+                    {
+                        window.ChooseInitialOutputDirectory();
+                        await window.CheckUpdates(false, mutexName);
+                    };
+                    window.UpdateMutexName = mutexName;
+                    using (Mutex installed = new Mutex(false, "Local\\MustekStudio-Installed"))
+                        Application.Run(window);
                 }
                 catch (Exception ex) { MessageBox.Show(ex.Message, UiText.Get("Не удалось открыть Mustek Studio"), MessageBoxButtons.OK, MessageBoxIcon.Error); }
                 finally { single.ReleaseMutex(); }
@@ -143,6 +150,8 @@ namespace MustekStudio
         readonly Button removeAll = new ThemedButton();
         readonly System.Windows.Forms.Timer clock = new System.Windows.Forms.Timer();
         bool busy, refreshing, showingPreview;
+        bool checkingUpdates, settingsOpen, updateStarted;
+        internal string UpdateMutexName;
         int displayedPreviewDpi;
         DateTime started;
         string busyText;
@@ -238,11 +247,21 @@ namespace MustekStudio
             preferences.Dock = DockStyle.None; preferences.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             preferences.AutoSize = true; preferences.MinimumSize = new Size(150, 34);
             header.Controls.Add(preferences, 1, 0);
-            preferences.Click += delegate
+            preferences.Click += async delegate
             {
                 using (SettingsDialog dialog = new SettingsDialog(store.State.Language, store.State.Theme, OutputDirectory))
-                    if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    DialogResult result;
+                    do
+                    {
+                        settingsOpen = true;
+                        try { result = dialog.ShowDialog(this); }
+                        finally { settingsOpen = false; }
+                        if (result == DialogResult.Retry) await CheckUpdates(true, UpdateMutexName);
+                    } while (result == DialogResult.Retry && !updateStarted && !IsDisposed);
+                    if (result == DialogResult.OK)
                         Edit(delegate { ApplyPreferences(dialog.SelectedLanguage, dialog.SelectedTheme, dialog.SelectedOutputDirectory); });
+                }
             };
 
             Panel settingsScroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true, Margin = Padding.Empty };
@@ -402,6 +421,46 @@ namespace MustekStudio
         string PrepareOutputDirectory()
         {
             return Directory.CreateDirectory(OutputDirectory).FullName;
+        }
+        internal async Task CheckUpdates(bool manual, string mutexName)
+        {
+            if (checkingUpdates)
+            {
+                if (manual) MessageBox.Show(this, UiText.Get("Проверка обновлений уже выполняется."), "Mustek Studio");
+                return;
+            }
+            checkingUpdates = true;
+            try
+            {
+                if (!manual) await Task.Run(() => AppUpdate.ClearPreviousDownloads(RuntimePackage.DataRoot));
+                AppUpdate update = await Task.Run(() => AppUpdate.Check());
+                while (!IsDisposed && (busy || settingsOpen)) await Task.Delay(350);
+                if (IsDisposed) return;
+                if (update == null)
+                {
+                    if (manual) MessageBox.Show(this, UiText.Get("Установлена последняя версия."), "Mustek Studio");
+                    return;
+                }
+                string message = String.Format(UiText.Get("Доступна версия {0}. Установить обновление и перезапустить Mustek Studio?"), update.Version);
+                if (MessageBox.Show(this, message, "Mustek Studio", MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
+                string installer = null;
+                await Work(UiText.Get("Загрузка обновления"), async delegate
+                {
+                    installer = await Task.Run(() => update.Download(RuntimePackage.DataRoot));
+                });
+                if (installer == null) return;
+                AppUpdate.Install(installer, mutexName, store.State.Language);
+                updateStarted = true;
+                Close();
+            }
+            catch (Exception ex)
+            {
+                if (IsDisposed) return;
+                if (manual) ShowError(new IOException(UiText.Get("Не удалось проверить или установить обновление.") + Environment.NewLine + ex.Message, ex));
+                else SetStatus(UiText.Get("Не удалось проверить или установить обновление."));
+            }
+            finally { checkingUpdates = false; }
         }
         void UpdateImageTitle()
         {
@@ -608,6 +667,7 @@ namespace MustekStudio
         }
         void OnClosing(object sender, FormClosingEventArgs e)
         {
+            if (updateStarted) return;
             if (busy)
             {
                 e.Cancel = true; MessageBox.Show(this, UiText.Get("Дождитесь завершения текущей операции. Страницы сохраняются автоматически."), UiText.Get("Сканирование выполняется")); return;

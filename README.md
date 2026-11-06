@@ -21,11 +21,17 @@ Mustek Studio — приложение для **Mustek ScanExpress 1200 UB Plus*
 
 Zadig входит в установщик. Права администратора нужны для привязки WinUSB.
 Рабочие страницы и настройки находятся в `MustekStudio.Data` рядом с приложением.
+При обновлении они сохраняются. При удалении Setup предложит сохранить или
+удалить PDF, PNG и рабочие страницы из папки данных.
 
 Для предпросмотра и сканирования можно выбрать разное разрешение. Добавляйте
 страницы по одной и сохраняйте их в общий PDF или в отдельные PNG. Кнопка
 «Убрать всё» очищает список страниц после подтверждения и сохраняет файлы
 изображений. В настройках доступны русский и английский языки и две темы.
+
+Mustek Studio проверяет обновления при запуске. Для ручной проверки нажмите
+«Проверить обновления» в настройках. После подтверждения Setup установит
+обновление и снова откроет приложение.
 
 ## Сборка
 
@@ -43,6 +49,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\Build-Setup.ps1 -I
 
 Укажите фактический путь к `ISCC.exe`. Сборка обновит установщик и файл SHA256
 в корне. Исходники приложения и Setup находятся в `src`.
+Для выпуска обновления опубликуйте этот коммит с `update.txt` и тегом
+`v<версия>`, например `v1.0.2`. Приложение скачивает Setup из этого тега.
 
 Лицензии и происхождение зависимостей описаны в [THIRD-PARTY.md](THIRD-PARTY.md).
 
@@ -65,11 +73,17 @@ on **Windows 10-11 x64**. It uses WinUSB and SANE GT68xx with USB ID **05D8:4002
 
 Zadig is bundled. Binding WinUSB requires administrator approval. The working
 document and settings are stored in `MustekStudio.Data` beside the application.
+Updates preserve them. During uninstallation, choose whether to keep the PDF
+and PNG files and working pages in the data folder.
 
 You can choose preview and scan resolutions independently, save pages as PNG
 or a single multipage PDF, and clear the page list with **Remove all** after
 confirmation. The image files are kept. English and Russian and light and dark
 themes are available in Settings.
+
+Mustek Studio checks for updates on startup. Use **Check for updates** in
+Settings for a manual check. Once you confirm, Setup installs the update and
+reopens the application.
 
 ### Build
 
@@ -79,5 +93,7 @@ Install the provided setup, then run the two PowerShell commands under
 installed in a custom folder, and supply your actual `ISCC.exe` path. The build
 updates the root installer and SHA256 file. Application and installer sources
 are under `src`.
+To publish an update, push the commit with `update.txt` and its matching
+`v<version>` tag, for example `v1.0.2`. The app downloads Setup from that tag.
 
 Dependency notices are in [THIRD-PARTY.md](THIRD-PARTY.md).

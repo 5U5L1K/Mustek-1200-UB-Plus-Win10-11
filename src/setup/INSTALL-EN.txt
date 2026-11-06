@@ -18,7 +18,9 @@ Zadig is included; no separate download is needed. You can reopen the
 connection assistant from Start — Mustek Studio — Scanner connection and setup.
 
 Settings and working pages are stored in MustekStudio.Data inside the
-application folder. Updates and uninstallation preserve this data directory.
+application folder. Updates preserve settings and working pages.
+The uninstaller offers to keep or delete PDF and PNG files and working pages
+in the data folder. Export folders outside the data folder remain available.
 Back up this directory and exported files to keep your documents.
 Choose an installation folder writable by your user account.
 
@@ -26,6 +28,9 @@ Choose a folder for PDF and PNG exports on first launch. If you cancel,
 the application uses MustekStudio.Data\scans. You can change the folder in
 Settings. Remove all clears the document after confirmation and keeps the
 image files.
+
+Mustek Studio checks for updates on startup. You can also use Check for updates
+in Settings. After confirmation, the update installs and the application reopens.
 
 The installer works offline. Mustek Studio uses the .NET Framework included
 with Windows 10. Installing WinUSB requires a separate administrator confirmation.
