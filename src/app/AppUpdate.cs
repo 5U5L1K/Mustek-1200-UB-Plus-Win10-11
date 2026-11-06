@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Cache;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -16,7 +17,7 @@ namespace MustekStudio
         public Version Version { get; private set; }
         string checksum;
 
-        static HttpWebResponse Open(string url)
+        static HttpWebResponse Open(string url, string accept = null)
         {
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -24,6 +25,11 @@ namespace MustekStudio
             request.Timeout = 15000;
             request.ReadWriteTimeout = 15000;
             request.UserAgent = "Mustek-Studio";
+            if (accept != null)
+            {
+                request.Accept = accept;
+                request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
+            }
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             if (response.StatusCode == HttpStatusCode.OK) return response;
             response.Dispose();
@@ -33,7 +39,9 @@ namespace MustekStudio
         public static AppUpdate Check()
         {
             string[] lines;
-            using (HttpWebResponse response = Open(Repository + "refs/heads/main/update.txt"))
+            using (HttpWebResponse response = Open(
+                "https://api.github.com/repos/5U5L1K/Mustek-1200-UB-Plus-Win10-11/contents/update.txt?ref=main",
+                "application/vnd.github.raw+json"))
             using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.ASCII))
             {
                 char[] buffer = new char[256];

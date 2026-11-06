@@ -1,1 +1,1 @@
-f7e3d494fc32fcc430abf6058d3eac9800dd7f998597713a7fa3a4642ef69efc  MustekStudio-Setup.exe
+faa3a0ffde03b580dec2c74884988464a7b196137e56dcd1952938357e937f91  MustekStudio-Setup.exe
