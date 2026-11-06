@@ -1,0 +1,13 @@
+*.exe
+*.dll
+!/MustekStudio-Setup.exe
+/src/build/
+/src/runtime/
+/src/app/vendor/
+/src/firmware/SBfw.usb
+MustekStudio.Data/
+app-data/
+scans/
+__pycache__/
+*.log
+*.tmp
